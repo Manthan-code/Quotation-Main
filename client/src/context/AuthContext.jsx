@@ -4,7 +4,11 @@ import axios from "axios";
 export const AuthContext = createContext();
 
 /* ── Axios instance ─────────────────────────── */
-const api = axios.create({ baseURL: "http://localhost:5000/api/auth" });
+const baseURL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api/auth`
+  : "http://localhost:5000/api/auth";
+
+const api = axios.create({ baseURL });
 
 api.interceptors.request.use((cfg) => {
   const t = localStorage.getItem("token");
