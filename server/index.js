@@ -48,7 +48,9 @@ mongoose
 
     // health check
     app.get("/", (_req, res) => res.send("API up ✅"));
-
+    app.get("/test", (req, res) => {
+  res.send("Test route working ✅");
+});
     app.listen(PORT, () =>
       console.log(`🚀  Server running on http://localhost:${PORT}`)
     );
