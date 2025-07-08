@@ -4,11 +4,10 @@ import axios from "axios";
 export const AuthContext = createContext();
 
 /* ── Axios instance ─────────────────────────── */
-const baseURL = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}/api/auth`
-  : "http://localhost:5000/api/auth";
 
-const api = axios.create({ baseURL });
+const api = axios.create({
+  baseURL: process.env.REACT_APP_API_URL
+});
 
 api.interceptors.request.use((cfg) => {
   const t = localStorage.getItem("token");

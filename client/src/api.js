@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://quotation-api-vame.onrender.com/api',
+  baseURL: 'https://quotation-api.onrender.com/api',
 });
 
 api.interceptors.request.use((config) => {
