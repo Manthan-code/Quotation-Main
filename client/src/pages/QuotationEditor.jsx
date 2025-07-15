@@ -279,10 +279,14 @@ export default function QuotationEditor({ mode = "add" }) {
     sgst: 9,
     igst: 18,
     alluminum: 300,
+    overhead: 10,
+    adminprofit: 30,
+    transportationFee: 0,
     discount: 0,
     fabrication: 0,
     installation: 0,
     projectId: "",
+
   });
   const [modal, setModal] = useState({ type: null, index: null });
   const [form, setForm] = useState(blankRow);
@@ -339,7 +343,10 @@ export default function QuotationEditor({ mode = "add" }) {
           setHeader({
             ...header,
             ...data.header,
-            alluminum: data.header?.alluminum ?? 300, // 👈 fallback to 300
+            alluminum: data.header?.alluminum ?? 300,
+            overhead: data.header?.overhead ?? 10,
+            adminprofit: data.header?.adminprofit ?? 30,
+            transportationFee: data.header?.transportationFee ?? 0,
           });
           setRows(data.rows || []);
           setQuotationId(data._id);
@@ -448,6 +455,9 @@ export default function QuotationEditor({ mode = "add" }) {
             fabrication: current.header?.fabrication ?? 0,
             installation: current.header?.installation ?? 0,
             alluminum: current.header?.alluminum ?? 300,
+            overhead: current.header?.overhead ?? 10,
+            adminprofit: current.header?.adminprofit ?? 30,
+            transportationFee: current.header?.transportationFee ?? 0,
             fixedCharge: current.header?.fixedCharge ?? 0,
             discount: current.header?.discount ?? 0, // ✅ include this
             projectId: current.header?.projectId || "",
@@ -549,7 +559,10 @@ export default function QuotationEditor({ mode = "add" }) {
 
     up.sqm = areaSqm.toFixed(3);
     up.sqft = areaSqft.toFixed(3);
-    const aluminiumRate = parseFloat(header.alluminum) || 0;
+    const aluminiumRate = parseFloat(header.alluminum) || 300;
+    const overheadRate = parseFloat(header.overhead) || 10;
+    const adminProfitRate = parseFloat(header.adminprofit) || 30;
+    const transportationFee = parseFloat(header.transportationFee) || 0;
     const discountRate = parseFloat(header.discount) || 0;
     const seriesItem = lists.allProducts.find((s) => s.series == up.series);
     const typologyItem = lists.allProducts.find((p) => p.typology === up.typology);
@@ -1119,7 +1132,8 @@ export default function QuotationEditor({ mode = "add" }) {
       finishAmount +
       hardwareAmount;
     const totalAmount = (totalPerUnit + fixedCharge) * qty;
-
+    const amountAfterOverhead=totalAmount + (totalAmount*overheadRate)/100;
+    const amountAfterAdmin=amountAfterOverhead + (amountAfterOverhead*adminProfitRate)/100;
     up.amount = totalAmount.toFixed(2);
     up.rateSqM = areaSqm > 0 ? (totalPerUnit / areaSqm).toFixed(2) : "";
     up.rateSqFt = areaSqft > 0 ? (totalPerUnit / areaSqft).toFixed(2) : "";
@@ -1176,11 +1190,12 @@ export default function QuotationEditor({ mode = "add" }) {
   const fabricationPerSqm = +header.fabrication || 0;
   const installationPerSqm = +header.installation || 0;
   const discountRate = +header.discount || 0;
+
   useEffect(() => {
     if (mode === "edit" || mode === "add") {
       setRows((prevRows) => prevRows.map(handleRow));
     }
-  }, [header.alluminum, header.discount]);
+  }, [header.alluminum, header.discount,header.overhead, header.adminprofit, header.transportationFee]);
   useEffect(() => {
     if (mode === "edit" || mode === "add") {
       setRows((prevRows) => prevRows.map(handleRow));
@@ -1192,8 +1207,16 @@ export default function QuotationEditor({ mode = "add" }) {
 
   const fabricationAmt = totalSqm * fabricationPerSqm;
   const installationAmt = totalSqm * installationPerSqm;
-
-  const taxable = rowsAmt + fabricationAmt + installationAmt;
+  const overheadRate = +header.overhead || 0;
+  const adminProfitRate = +header.adminprofit || 0;
+  const transportationFee = +header.transportationFee || 0;
+  // ...existing code...
+const baseAmt = rowsAmt;
+const overheadAmt = baseAmt * (overheadRate / 100);
+const adminProfitAmt = (baseAmt + overheadAmt) * (adminProfitRate / 100);
+const charge = fabricationAmt + installationAmt ;
+const taxable = baseAmt + overheadAmt + adminProfitAmt + transportationFee+charge;
+// ...existing code...
 
   const taxAmt =
     header.location === "gujarat"
@@ -1216,6 +1239,9 @@ export default function QuotationEditor({ mode = "add" }) {
           sgst: parseFloat(header.sgst) || 9,
           igst: parseFloat(header.igst) || 18,
           alluminum: parseFloat(header.alluminum) || 300,
+          overhead: parseFloat(header.overhead) || 10,
+          adminprofit: parseFloat(header.adminprofit) || 10,
+          transportationFee: parseFloat(header.transportationFee) || 0,
           discount: parseFloat(header.discount) || 0,
           fabrication: fabricationPerSqm,
           installation: installationPerSqm,
@@ -1283,6 +1309,9 @@ export default function QuotationEditor({ mode = "add" }) {
               fabrication: +originalData.header.fabrication || 0,
               installation: +originalData.header.installation || 0,
               alluminum: +originalData.header.alluminum || 0,
+              overhead: +originalData.header.overhead || 0,
+              adminprofit: +originalData.header.adminprofit || 0,
+              transportationFee: +originalData.header.transportationFee || 0,
               discount: +originalData.header.discount || 0,
               fixedCharge: +originalData.header.fixedCharge || 0,
               projectId: originalData.header.projectId,
@@ -1308,6 +1337,9 @@ export default function QuotationEditor({ mode = "add" }) {
               fabrication: +payload.header.fabrication || 0,
               installation: +payload.header.installation || 0,
               alluminum: +payload.header.alluminum || 0,
+              overhead: +payload.header.overhead || 0,
+              adminprofit: +payload.header.adminprofit || 0,
+              transportationFee: +payload.header.transportationFee || 0,
               discount: +payload.header.discount || 0,
               fixedCharge: +payload.header.fixedCharge || 0,
               projectId: payload.header.projectId,
@@ -1745,7 +1777,49 @@ export default function QuotationEditor({ mode = "add" }) {
           </div>
         </div>
         <div className="flex justify-end mb-6">
-          <div className="w-37">
+          <div className="w-37 pr-5">
+            <label className="font-medium block mb-1" style={FONT}>
+              Overhead (in %)
+            </label>
+            <input
+              type="number"
+              value={header.overhead}
+              onChange={(e) =>
+                setHeader((h) => ({
+                  ...h,
+                  overhead: e.target.value === "" ? "" : parseFloat(e.target.value),
+                }))
+              }
+              readOnly={mode === "view"}
+              tabIndex={mode === "view" ? -1 : undefined} // disable tab in view mode
+              className={`border rounded px-3 py-2 text-xs w-full ${
+                mode === "view" ? "bg-gray-100 cursor-default pointer-events-none" : "bg-white"
+              }`}
+              style={FONT}
+            />
+          </div>
+          <div className="w-37 pr-5">
+            <label className="font-medium block mb-1" style={FONT}>
+              AdminProfit (in %)
+            </label>
+            <input
+              type="number"
+              value={header.adminprofit}
+              onChange={(e) =>
+                setHeader((h) => ({
+                  ...h,
+                  adminprofit: e.target.value === "" ? "" : parseFloat(e.target.value),
+                }))
+              }
+              readOnly={mode === "view"}
+              tabIndex={mode === "view" ? -1 : undefined} // disable tab in view mode
+              className={`border rounded px-3 py-2 text-xs w-full ${
+                mode === "view" ? "bg-gray-100 cursor-default pointer-events-none" : "bg-white"
+              }`}
+              style={FONT}
+            />
+          </div>
+          <div className="w-37 pr-5">
             <label className="font-medium block mb-1" style={FONT}>
               Discount
             </label>
@@ -1756,6 +1830,27 @@ export default function QuotationEditor({ mode = "add" }) {
                 setHeader((h) => ({
                   ...h,
                   discount: parseFloat(e.target.value) || 0,
+                }))
+              }
+              readOnly={mode === "view"}
+              tabIndex={mode === "view" ? -1 : undefined} // disable tab in view mode
+              className={`border rounded px-3 py-2 text-xs w-full ${
+                mode === "view" ? "bg-gray-100 cursor-default pointer-events-none" : "bg-white"
+              }`}
+              style={FONT}
+            />
+          </div>
+          <div className="w-37 pr-5">
+            <label className="font-medium block mb-1" style={FONT}>
+              Transportation Fee (in ₹)
+            </label>
+            <input
+              type="number"
+              value={header.transportationFee}
+              onChange={(e) =>
+                setHeader((h) => ({
+                  ...h,
+                  transportationFee: e.target.value === "" ? "" : parseFloat(e.target.value),
                 }))
               }
               readOnly={mode === "view"}
@@ -1850,6 +1945,16 @@ export default function QuotationEditor({ mode = "add" }) {
           <p>
             Installation Charges: <b>{installationAmt.toFixed(2)}</b>
           </p>
+          <p>
+            Overhead ({header.overhead}%): <b>{overheadAmt.toFixed(2)}</b>
+          </p>
+          <p>
+            Admin Profit ({header.adminprofit}%): <b>{adminProfitAmt.toFixed(2)}</b>
+          </p>
+          <p>
+            Transportation Fee: <b>{transportationFee.toFixed(2)}</b>
+          </p>
+          
           <p>
             Total Amount (Before Tax): <b>{taxable.toFixed(2)}</b>
           </p>
