@@ -598,7 +598,7 @@ export default function QuotationEditor({ mode = "add" }) {
         skrew13X7: "CSK PH 7X13 GI",
         brush: "ACC_BRUSH",
         distancePieces: "PH139/B",
-        silicon: "WACKER GN CL 270	",
+        silicon: "WACKER GN CL 270",
         woolpipe: "4.8X6 GREY WP",
         trackEPDM: "EPDM 4746",
         interlockEPDM: "EPDM 8085",
@@ -779,6 +779,7 @@ export default function QuotationEditor({ mode = "add" }) {
               outsideInterlockAmount = outsideInterlockConv * heightM * aluminiumRate;
               railAmount = railConv * 2 * widthM * aluminiumRate;
               lockAmount = lockRate * 2;
+              console.log("siliconrate",siliconRate,"Silicon",siliconRate * ((perimeterM * 2) / 9.5));
               break;
             case "2 TRACK 3 SHUTTER":
               typologyAmount =
