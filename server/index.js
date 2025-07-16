@@ -22,8 +22,9 @@ const MTO = require('./routes/mtoRoutes');
 const app = express();
 
 /* ── global middleware ────────────────────────── */
-app.use(cors());
 app.use(express.json());
+
+app.use(cors());
 
 /* ── connect DB then mount routes ─────────────── */
 mongoose
@@ -33,6 +34,8 @@ mongoose
 
     // auth routes
     app.use("/api/auth", authRoutes);
+
+    // other routes
     app.use('/api/products', productRoutes);
     app.use('/api/glass', glassRoutes);
     app.use('/api/hsn', hsnRoutes);
@@ -60,3 +63,10 @@ mongoose
     console.error("DB connection error:", err.message);
     process.exit(1);
   });
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError) {
+    console.error("❌ Bad JSON:", err.message);
+    return res.status(400).json({ msg: "Invalid JSON" });
+  }
+  next();
+});

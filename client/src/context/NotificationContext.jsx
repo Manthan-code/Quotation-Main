@@ -15,7 +15,7 @@ export const NotificationProvider = ({ children }) => {
   useEffect(() => {
     const load = async () => {
       try {
-        const res  = await fetch("/api/notifications");
+        const res  = await fetch("/notifications");
         const data = await res.json();
         setNotifs(data);
       } catch (err) {

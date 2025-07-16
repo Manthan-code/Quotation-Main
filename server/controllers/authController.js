@@ -9,22 +9,23 @@ const signToken = (id, role) =>
 exports.signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    if (!name || !email || !password)
-      return res.status(400).json({ msg: "All fields required" });
+    if (!name || !email || !password) {
+      return res.status(400).json({ msg: "All fields are required" });
+    }
 
-    if (await User.findOne({ email }))
-      return res.status(400).json({ msg: "Email already registered" });
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ msg: "Email already exists" });
+    }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+   
     const user  = await User.create({ name, email, password: hashedPassword, role: "Client" });
-    const token = signToken(user._id);
+
+    const token = signToken(user._id, user.role);
     res.status(201).json({
       token,
-      user: { id: user._id, name: user.name, email: user.email },
+      user: { id: user._id, name: user.name, email: user.email, role: user.role },
     });
-    console.log("Logging in:", email);
-console.log("User from DB:", user);
-
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
@@ -34,9 +35,15 @@ console.log("User from DB:", user);
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ msg: "Email and password are required" });
+      
+    }
+
     const user = await User.findOne({ email }).select("+password");
-    if (!user || !(await user.comparePw(password)))
-      return res.status(400).json({ msg: "Invalid credentials" });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ msg: "Invalid email or password" });
+    }
 
     const token = signToken(user._id, user.role);
     res.json({

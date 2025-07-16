@@ -53,6 +53,8 @@ export const AuthProvider = ({ children }) => {
     const { data } = await api.post("/auth/login", { email, password });
     setUser(data.user);
     setToken(data.token);
+    console.log("Logging in with:", email, password);
+
   };
 
   const logout = () => {

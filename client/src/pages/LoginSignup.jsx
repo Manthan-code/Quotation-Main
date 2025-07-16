@@ -21,7 +21,9 @@ function LoginSignup() {
     setLoading(true);
     try {
       if (isLogin) {
+        console.log("Logging in with:", form.email, form.password);
         await login(form.email, form.password);
+        
       } else {
         await signup(form.name, form.email, form.password);
       }
