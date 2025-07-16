@@ -19,7 +19,7 @@ exports.signup = async (req, res) => {
     }
 
    
-    const user  = await User.create({ name, email, password: hashedPassword, role: "Client" });
+    const user  = await User.create({ name, email, password, role: "Client" });
 
     const token = signToken(user._id, user.role);
     res.status(201).json({

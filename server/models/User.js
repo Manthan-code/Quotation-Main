@@ -18,6 +18,7 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+
 /* helper to check pw on login */
 userSchema.methods.comparePw = function (entered) {
   return bcrypt.compare(entered, this.password);
