@@ -8,6 +8,7 @@ function LoginSignup() {
   const [isLogin, setIsLogin] = useState(true);
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login, signup } = useContext(AuthContext);
 
@@ -17,6 +18,7 @@ function LoginSignup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     try {
       if (isLogin) {
         await login(form.email, form.password);
@@ -29,6 +31,8 @@ function LoginSignup() {
       setError(
         err.response?.data?.msg || `${isLogin ? 'Login' : 'Signup'} failed`
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -74,8 +78,8 @@ function LoginSignup() {
             required
             style={inputStyle}
           />
-          <button type="submit" style={buttonStyle}>
-            {isLogin ? 'Login' : 'Signup'}
+          <button type="submit" style={buttonStyle} disabled={loading}>
+            {loading ? 'Loading...' : isLogin ? 'Login' : 'Signup'}
           </button>
         </form>
 

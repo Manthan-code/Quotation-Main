@@ -775,6 +775,7 @@ export default function QuotationEditor({ mode = "add" }) {
                 glassEPDMRate * (widthM * 2 + heightM * 4) +
                 (glassPackerRate * (widthMM * 2 + heightMM * 4)) / 650 +
                 siliconRate * ((perimeterM * 2) / 9.5);
+                console.log("siliconrate",siliconRate,"Silicon",siliconRate * ((perimeterM * 2) / 9.5));
               insideInterlockAmount = insideInterlockConv * heightM * aluminiumRate;
               outsideInterlockAmount = outsideInterlockConv * heightM * aluminiumRate;
               railAmount = railConv * 2 * widthM * aluminiumRate;
@@ -1009,6 +1010,7 @@ export default function QuotationEditor({ mode = "add" }) {
               meshInterlockAmount = meshInterlockConv * heightM * aluminiumRate;
               railAmount = railConv * 3 * widthM * aluminiumRate;
               lockAmount = lockRate * 3;
+              console.log("siliconrate",siliconRate,"Silicon",siliconRate * ((perimeterM * 2) / 9.5));
               break;
             case "3 TRACK 3 SHUTTER 2 MASH (x-2x-x)":
               typologyAmount =
@@ -1138,7 +1140,7 @@ export default function QuotationEditor({ mode = "add" }) {
     up.amount = totalAmount.toFixed(2);
     up.rateSqM = areaSqm > 0 ? (totalPerUnit / areaSqm).toFixed(2) : "";
     up.rateSqFt = areaSqft > 0 ? (totalPerUnit / areaSqft).toFixed(2) : "";
-
+    
     console.log({
       typologyAmount,
       hardwareAmount,

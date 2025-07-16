@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
+import {jwtDecode} from "jwt-decode";
 
 export const AuthContext = createContext();
 
@@ -33,15 +34,23 @@ export const AuthProvider = ({ children }) => {
     user ? localStorage.setItem("user", JSON.stringify(user)) : localStorage.removeItem("user");
   }, [user]);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decoded = jwtDecode(token);
+      setUser({ id: decoded.id, role: decoded.role });
+    }
+  }, []);
+
   /* ── Auth helpers ─────────────────────────── */
   const signup = async (name, email, password) => {
-    const { data } = await api.post("/signup", { name, email, password });
+    const { data } = await api.post("/auth/signup", { name, email, password });
     setUser(data.user);
     setToken(data.token);
   };
 
   const login = async (email, password) => {
-    const { data } = await api.post("/login", { email, password });
+    const { data } = await api.post("/auth/login", { email, password });
     setUser(data.user);
     setToken(data.token);
   };

@@ -1,8 +1,9 @@
 const jwt   = require("jsonwebtoken");
 const User  = require("../models/User");
+const bcrypt = require("bcryptjs");
 
-const signToken = (id) =>
-  jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+const signToken = (id, role) =>
+  jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
 /* ───────── Sign‑up ───────── */
 exports.signup = async (req, res) => {
@@ -14,12 +15,16 @@ exports.signup = async (req, res) => {
     if (await User.findOne({ email }))
       return res.status(400).json({ msg: "Email already registered" });
 
-    const user  = await User.create({ name, email, password });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user  = await User.create({ name, email, password: hashedPassword, role: "Client" });
     const token = signToken(user._id);
     res.status(201).json({
       token,
       user: { id: user._id, name: user.name, email: user.email },
     });
+    console.log("Logging in:", email);
+console.log("User from DB:", user);
+
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
@@ -33,10 +38,10 @@ exports.login = async (req, res) => {
     if (!user || !(await user.comparePw(password)))
       return res.status(400).json({ msg: "Invalid credentials" });
 
-    const token = signToken(user._id);
+    const token = signToken(user._id, user.role);
     res.json({
       token,
-      user: { id: user._id, name: user.name, email: user.email },
+      user: { id: user._id, name: user.name, email: user.email, role: user.role },
     });
   } catch (err) {
     res.status(500).json({ msg: err.message });
@@ -82,4 +87,15 @@ exports.changePassword = async (req, res) => {
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
+};
+
+/* ───────── Update user role ───────── */
+exports.updateUserRole = async (req, res) => {
+  const { id } = req.params;
+  const { role } = req.body;
+  if (!["Admin", "Client", "Purchase", "Site Engineer"].includes(role)) {
+    return res.status(400).json({ error: "Invalid role" });
+  }
+  const user = await User.findByIdAndUpdate(id, { role }, { new: true });
+  res.status(200).json(user);
 };
