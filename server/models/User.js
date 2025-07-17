@@ -7,6 +7,7 @@ const userSchema = new Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: { type: String, enum: ["Admin", "Client", "Purchase", "Site Engineer"], default: "Client" },
+    avatar: { type: String, default: "" }, // URL to avatar image
   },
   { timestamps: true }
 );

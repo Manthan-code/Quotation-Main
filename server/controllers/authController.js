@@ -63,21 +63,33 @@ exports.logout = (_req, res) => {
 /* ───────── Update profile ───────── */
 exports.updateProfile = async (req, res) => {
   try {
-    const updated = await User.findByIdAndUpdate(
-      req.user.id,
-      { name: req.body.name },
-      { new: true }
-    );
+    const updates = { name: req.body.name };
+
+    // If an image was uploaded, save the Cloudinary URL
+    if (req.file && req.file.path) {
+      updates.avatar = req.file.path;
+    }
+
+    const updated = await User.findByIdAndUpdate(req.user.id, updates, {
+      new: true,
+    });
+
     if (!updated) return res.status(404).json({ msg: "User not found" });
 
     res.json({
       msg: "Profile updated",
-      user: { id: updated._id, name: updated.name, email: updated.email },
+      user: {
+        id: updated._id,
+        name: updated.name,
+        email: updated.email,
+        avatar: updated.avatar || "", // include avatar in response
+      },
     });
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
 };
+
 
 
 exports.getAllUsers = async (req, res) => {
