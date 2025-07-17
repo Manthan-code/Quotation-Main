@@ -17,13 +17,14 @@ export default function Sidebar({
   toggleSidebar,
   closeSidebar,
 }) {
+  
   const [openMaster, setOpenMaster] = useState(false);
   const [openProfile, setOpenProfile] = useState(false);
   const [openCRM, setOpenCRM] = useState(false);
   const { user } = useContext(AuthContext);
   const expandOr = (fn) => (!open ? toggleSidebar() : fn());
   const displayName = user?.name || "";
-  
+  console.log("User from context:", user);
   /* ---------- Master links (Project removed) ---------- */
   const masterLinks = [
     { label: "Aluminium", path: "/aluminium" },
