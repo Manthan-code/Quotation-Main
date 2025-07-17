@@ -63,32 +63,31 @@ exports.logout = (_req, res) => {
 /* ───────── Update profile ───────── */
 exports.updateProfile = async (req, res) => {
   try {
-    const updates = { name: req.body.name };
+    console.log("REQ FILE:", req.file);  // <-- log Cloudinary response
+    console.log("REQ BODY:", req.body);
 
-    // If an image was uploaded, save the Cloudinary URL
-    if (req.file && req.file.path) {
-      updates.avatar = req.file.path;
-    }
+    const updateFields = {};
+    if (req.body.name) updateFields.name = req.body.name;
+    if (req.file?.path) updateFields.avatar = req.file.path;
 
-    const updated = await User.findByIdAndUpdate(req.user.id, updates, {
-      new: true,
-    });
+    const updated = await User.findByIdAndUpdate(
+      req.user.id,
+      updateFields,
+      { new: true }
+    );
 
     if (!updated) return res.status(404).json({ msg: "User not found" });
 
     res.json({
       msg: "Profile updated",
-      user: {
-        id: updated._id,
-        name: updated.name,
-        email: updated.email,
-        avatar: updated.avatar || "", // include avatar in response
-      },
+      user: { id: updated._id, name: updated.name, email: updated.email, avatar: updated.avatar },
     });
   } catch (err) {
-    res.status(500).json({ msg: err.message });
+    console.error("PROFILE UPDATE ERROR:", err);  // <-- print error
+    res.status(500).json({ msg: "Internal Server Error" });
   }
 };
+  
 
 
 
