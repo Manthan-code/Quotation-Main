@@ -2,8 +2,8 @@ const jwt   = require("jsonwebtoken");
 const User  = require("../models/User");
 const bcrypt = require("bcryptjs");
 
-const signToken = (id, role) =>
-  jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: "7d" });
+const signToken = (id, name, email, role) =>
+  jwt.sign({ id, name, email, role  }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
 /* ───────── Sign‑up ───────── */
 exports.signup = async (req, res) => {
@@ -21,7 +21,7 @@ exports.signup = async (req, res) => {
    
     const user  = await User.create({ name, email, password, role: "Client" });
 
-    const token = signToken(user._id, user.role);
+    const token = signToken(user._id, user.name, user.email, user.role);
     res.status(201).json({
       token,
       user: { id: user._id, name: user.name, email: user.email, role: user.role },
@@ -45,7 +45,7 @@ exports.login = async (req, res) => {
       return res.status(401).json({ msg: "Invalid email or password" });
     }
 
-    const token = signToken(user._id, user.role);
+    const token = signToken(user._id, user.name, user.email, user.role);
     res.json({
       token,
       user: { id: user._id, name: user.name, email: user.email, role: user.role },
@@ -74,6 +74,16 @@ exports.updateProfile = async (req, res) => {
       msg: "Profile updated",
       user: { id: updated._id, name: updated.name, email: updated.email },
     });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
+
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+    res.json(users);
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }

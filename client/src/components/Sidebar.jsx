@@ -6,12 +6,13 @@ import {
   User as UserIcon,
   Handshake,
 } from "lucide-react";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 import LogoutButton from "./LogoutButton";
 import logo from "../assets/logo.png";
 
 export default function Sidebar({
-  user,
   open,
   toggleSidebar,
   closeSidebar,
@@ -19,11 +20,10 @@ export default function Sidebar({
   const [openMaster, setOpenMaster] = useState(false);
   const [openProfile, setOpenProfile] = useState(false);
   const [openCRM, setOpenCRM] = useState(false);
-
+  const { user } = useContext(AuthContext);
   const expandOr = (fn) => (!open ? toggleSidebar() : fn());
-
   const displayName = user?.name || "";
-
+  
   /* ---------- Master links (Project removed) ---------- */
   const masterLinks = [
     { label: "Aluminium", path: "/aluminium" },
@@ -98,7 +98,14 @@ export default function Sidebar({
               {open && <span className="text-[24px]">Dashboard</span>}
             </Link>
           </li>
-
+          {user?.role === "Admin" && (
+            <li onClick={() => expandOr(closeSidebar)}>
+              <Link to="/admin" className="flex items-center gap-3 hover:text-[#74bbbd]">
+                🛠️
+                {open && <span className="text-[24px]">Admin Panel</span>}
+              </Link>
+            </li>
+          )}
           {/* CRM Dropdown (Quotation + Project) */}
           <li>
             <button

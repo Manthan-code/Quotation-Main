@@ -7,6 +7,7 @@ const {
   updateProfile,
   changePassword,
   updateUserRole,
+  getAllUsers ,
 } = require("../controllers/authController");
 
 const verifyToken = require("../middleware/verifyToken");
@@ -15,7 +16,7 @@ const isAdmin = require("../middleware/isAdmin");
 // Public routes
 router.post("/signup", signup);
 router.post("/login", login);
-
+router.get("/users", verifyToken, isAdmin, getAllUsers);
 // Protected routes (if needed)
 router.put("/profile", verifyToken, updateProfile);
 router.put("/password", verifyToken, changePassword);

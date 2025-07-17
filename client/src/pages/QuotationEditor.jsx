@@ -1468,261 +1468,289 @@ const taxable = baseAmt + overheadAmt + adminProfitAmt + transportationFee+charg
   const preRevision = revisions[currentRevisionIndex - 1] || null;
 
   return (
+  <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
     <div className="flex justify-center">
-      <div className="p-6 w-full max-w-[1400px]">
-        {header.revision !== undefined && (
-          <p className="text-sm text-gray-500 mb-1">
-            Revision: <b>R{header.revision}</b>
-          </p>
-        )}
-        {(mode==="edit"||mode==="add") &&<h2 className="text-3xl font-bold mb-4" style={FONT}>
-          Quotation Editor
-        </h2>}
-         {(mode==="view") &&<h2 className="text-3xl font-bold mb-4" style={FONT}>
-          Quotation Viewer
-        </h2>}
-        {typeof mode === "string" && mode.toLowerCase() === "view" && revisions.length > 1 && (
-          <div className="mb-4">
-            <label className="text-sm font-medium" style={FONT}>
-              Revision:
-            </label>
-            <select
-              className="ml-2 border px-2 py-1 text-xs rounded"
-              value={quotationId}
-              onChange={(e) => nav(`/quotation/${e.target.value}`)}
-            >
-              {revisions.map((r) => (
-                <option key={r._id} value={r._id}>
-                  R{r.header.revision ?? 0}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+      <div className="p-8 w-full max-w-[1400px]">
+        {/* Header Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+          {header.revision !== undefined && (
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-medium mb-4">
+              <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+              Revision: <b className="ml-1">R{header.revision}</b>
+            </div>
+          )}
+          
+          {(mode === "edit" || mode === "add") && (
+            <h1 className="text-4xl font-bold text-gray-800 mb-2" style={FONT}>
+              Quotation Editor
+            </h1>
+          )}
+          {mode === "view" && (
+            <h1 className="text-4xl font-bold text-gray-800 mb-2" style={FONT}>
+              Quotation Viewer
+            </h1>
+          )}
+          
+          {typeof mode === "string" && mode.toLowerCase() === "view" && revisions.length > 1 && (
+            <div className="flex items-center gap-3 mt-4">
+              <label className="text-sm font-semibold text-gray-700" style={FONT}>
+                Revision:
+              </label>
+              <select
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                value={quotationId}
+                onChange={(e) => nav(`/quotation/${e.target.value}`)}
+              >
+                {revisions.map((r) => (
+                  <option key={r._id} value={r._id}>
+                    R{r.header.revision ?? 0}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+
+        {/* Differences Section */}
         {mode === "view" && preRevision && (
-          <div className="mt-8">
-            <h3 className="text-xl font-bold mb-2 text-red-600">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <h3 className="text-xl font-bold mb-4 text-red-600 flex items-center gap-2">
+              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
               Differences from previous revision (R{preRevision.header.revision})
             </h3>
-            <table className="w-full border text-xs mb-4">
-              <thead className="bg-gray-200">
-                <tr>
-                  <th className="border px-2 py-1">Type</th>
-                  <th className="border px-2 py-1">Field</th>
-                  <th className="border px-2 py-1">Old Value</th>
-                  <th className="border px-2 py-1">New Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                {/* Header differences */}
-                {Object.keys(quotation.header || {}).map((key) => {
-                  const oldVal = preRevision.header?.[key];
-                  const newVal = quotation.header?.[key];
-                  if (!_.isEqual(oldVal, newVal)) {
-                    return (
-                      <tr key={`header-${key}`} className="bg-yellow-50">
-                        <td className="border px-2 py-1">Header</td>
-                        <td className="border px-2 py-1">{key}</td>
-                        <td className="border px-2 py-1">{String(oldVal)}</td>
-                        <td className="border px-2 py-1">{String(newVal)}</td>
-                      </tr>
-                    );
-                  }
-                  return null;
-                })}
-
-                {/* Row differences */}
-                {quotation.rows.map((row, idx) => {
-                  const oldRow = preRevision.rows[idx];
-                  if (!oldRow) {
-                    return (
-                      <tr key={`row-added-${idx}`} className="bg-green-50">
-                        <td className="border px-2 py-1">Row {idx + 1}</td>
-                        <td className="border px-2 py-1" colSpan={3}>
-                          ➕ New row added
-                        </td>
-                      </tr>
-                    );
-                  }
-
-                  return Object.keys(row).map((key) => {
-                    if (key === "hardwareDetails") return null;
-                    const oldVal = oldRow[key];
-                    const newVal = row[key];
+            <div className="overflow-x-auto">
+              <table className="w-full border border-gray-200 rounded-lg text-sm">
+                <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                  <tr>
+                    <th className="border-b border-gray-200 px-4 py-3 font-semibold text-gray-700 text-left">Type</th>
+                    <th className="border-b border-gray-200 px-4 py-3 font-semibold text-gray-700 text-left">Field</th>
+                    <th className="border-b border-gray-200 px-4 py-3 font-semibold text-gray-700 text-left">Old Value</th>
+                    <th className="border-b border-gray-200 px-4 py-3 font-semibold text-gray-700 text-left">New Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Header differences */}
+                  {Object.keys(quotation.header || {}).map((key) => {
+                    const oldVal = preRevision.header?.[key];
+                    const newVal = quotation.header?.[key];
                     if (!_.isEqual(oldVal, newVal)) {
                       return (
-                        <tr key={`row-${idx}-${key}`} className="bg-yellow-50">
-                          <td className="border px-2 py-1">Row {idx + 1}</td>
-                          <td className="border px-2 py-1">{key}</td>
-                          <td className="border px-2 py-1">{String(oldVal)}</td>
-                          <td className="border px-2 py-1">{String(newVal)}</td>
+                        <tr key={`header-${key}`} className="bg-yellow-50 hover:bg-yellow-100 transition-colors">
+                          <td className="border-b border-gray-200 px-4 py-3 font-medium">Header</td>
+                          <td className="border-b border-gray-200 px-4 py-3">{key}</td>
+                          <td className="border-b border-gray-200 px-4 py-3 text-gray-600">{String(oldVal)}</td>
+                          <td className="border-b border-gray-200 px-4 py-3 font-medium">{String(newVal)}</td>
                         </tr>
                       );
                     }
                     return null;
-                  });
-                })}
+                  })}
 
-                {/* Row count changes */}
-                {preRevision.rows.length > quotation.rows.length && (
-                  <tr className="bg-red-50">
-                    <td className="border px-2 py-1">Rows</td>
-                    <td className="border px-2 py-1" colSpan={3}>
-                      🗑 {preRevision.rows.length - quotation.rows.length} row(s) were removed
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  {/* Row differences */}
+                  {quotation.rows.map((row, idx) => {
+                    const oldRow = preRevision.rows[idx];
+                    if (!oldRow) {
+                      return (
+                        <tr key={`row-added-${idx}`} className="bg-green-50 hover:bg-green-100 transition-colors">
+                          <td className="border-b border-gray-200 px-4 py-3 font-medium">Row {idx + 1}</td>
+                          <td className="border-b border-gray-200 px-4 py-3" colSpan={3}>
+                            <span className="inline-flex items-center gap-1 text-green-700">
+                              ➕ New row added
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    }
+
+                    return Object.keys(row).map((key) => {
+                      if (key === "hardwareDetails") return null;
+                      const oldVal = oldRow[key];
+                      const newVal = row[key];
+                      if (!_.isEqual(oldVal, newVal)) {
+                        return (
+                          <tr key={`row-${idx}-${key}`} className="bg-yellow-50 hover:bg-yellow-100 transition-colors">
+                            <td className="border-b border-gray-200 px-4 py-3 font-medium">Row {idx + 1}</td>
+                            <td className="border-b border-gray-200 px-4 py-3">{key}</td>
+                            <td className="border-b border-gray-200 px-4 py-3 text-gray-600">{String(oldVal)}</td>
+                            <td className="border-b border-gray-200 px-4 py-3 font-medium">{String(newVal)}</td>
+                          </tr>
+                        );
+                      }
+                      return null;
+                    });
+                  })}
+
+                  {/* Row count changes */}
+                  {preRevision.rows.length > quotation.rows.length && (
+                    <tr className="bg-red-50 hover:bg-red-100 transition-colors">
+                      <td className="border-b border-gray-200 px-4 py-3 font-medium">Rows</td>
+                      <td className="border-b border-gray-200 px-4 py-3" colSpan={3}>
+                        <span className="inline-flex items-center gap-1 text-red-700">
+                          🗑 {preRevision.rows.length - quotation.rows.length} row(s) were removed
+                        </span>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
-        <div className="flex justify-end mb-6">
-          <div className="w-37">
-            <label className="font-medium block mb-1" style={FONT}>
-              Aluminum Rate
-            </label>
-            <input
-              type="number"
-              value={header.alluminum}
-              onChange={(e) =>
-                setHeader((h) => ({
-                  ...h,
-                  alluminum: e.target.value === "" ? "" : parseFloat(e.target.value),
-                }))
-              }
-              readOnly={mode === "view"}
-              tabIndex={mode === "view" ? -1 : undefined} // disable tab in view mode
-              className={`border rounded px-3 py-2 text-xs w-full ${
-                mode === "view" ? "bg-gray-100 cursor-default pointer-events-none" : "bg-white"
-              }`}
-              style={FONT}
-            />
+        {/* Aluminum Rate Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="flex justify-end">
+            <div className="w-72">
+              <label className="block text-sm font-semibold text-gray-700 mb-2" style={FONT}>
+                Aluminum Rate
+              </label>
+              <input
+                type="number"
+                value={header.alluminum}
+                onChange={(e) =>
+                  setHeader((h) => ({
+                    ...h,
+                    alluminum: e.target.value === "" ? "" : parseFloat(e.target.value),
+                  }))
+                }
+                readOnly={mode === "view"}
+                tabIndex={mode === "view" ? -1 : undefined}
+                className={`w-full px-4 py-3 border rounded-lg text-sm transition-all ${
+                  mode === "view" 
+                    ? "bg-gray-50 border-gray-200 cursor-default pointer-events-none text-gray-600" 
+                    : "bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                }`}
+                style={FONT}
+              />
+            </div>
           </div>
         </div>
 
+        {/* Add Product Row Button */}
         {(mode === "edit" || mode === "add") && (
-          <button
-            onClick={() => setModal({ type: "add", index: null })}
-            className="flex items-center gap-1 bg-[#74bbbd] text-white px-4 py-2 rounded text-sm mb-4"
-            style={FONT}
-          >
-            <Plus size={14} /> Add Product Row
-          </button>
+          <div className="mb-6">
+            <button
+              onClick={() => setModal({ type: "add", index: null })}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+              style={FONT}
+            >
+              <Plus size={16} /> Add Product Row
+            </button>
+          </div>
         )}
 
-        {rows.length ? (
-          <div className="w-full overflow-x-auto">
-            <table className="table-fixed min-w-[1000px] border text-xs mb-4">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className={`${cellCls} w-6`}>Sr</th>
-                  <th className={`${cellCls} w-24`}>Series</th>
-                  <th className={`${cellCls} w-28`}>Typology</th>
-                  <th className={`${cellCls} w-20`}>W(mm)</th>
-                  <th className={`${cellCls} w-20`}>H(mm)</th>
-                  <th className={`${cellCls} w-32`}>Inside-Interlock</th>
-                  <th className={`${cellCls} w-20`}>Mesh-Interlock</th>
-                  <th className={`${cellCls} w-32`}>Outside-Interlock</th>
-                  <th className={`${cellCls} w-28`}>Rail</th>
-                  <th className={`${cellCls} w-24`}>Finish</th>
-                  <th className={`${cellCls} w-24`}>Lock</th>
-                  <th className={`${cellCls} w-24`}>Glass</th>
-                  <th className={`${cellCls} w-16`}>Qty</th>
-                  <th className={`${cellCls} w-20`}>SqFt</th>
-                  <th className={`${cellCls} w-20`}>SqM</th>
-                  <th className={`${cellCls} w-24`}>Amount</th>
-                  <th className={`${cellCls} w-24`}>Rate/sqFt</th>
-                  <th className={`${cellCls} w-24`}>Rate/sqM</th>
-                  {(mode === "edit" ||mode==="add")&& <th className={`${cellCls} w-28`}>Actions</th>}
-                </tr>
-              </thead>
-
-              <tbody>
-                {rows.map((r, i) => {
-                  return (
-                    <tr key={i} className="hover:bg-gray-50">
-                      <td className={cellCls}>{i + 1}</td>
-                      <td className={cellCls}>
+        {/* Products Table */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+          {rows.length ? (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[1200px] text-sm">
+                <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                  <tr>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700 border-b border-gray-200 w-16">Sr</th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700 border-b border-gray-200 w-24">Series</th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700 border-b border-gray-200 w-28">Typology</th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700 border-b border-gray-200 w-20">W(mm)</th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700 border-b border-gray-200 w-20">H(mm)</th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700 border-b border-gray-200 w-32">Inside-Interlock</th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700 border-b border-gray-200 w-20">Mesh-Interlock</th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700 border-b border-gray-200 w-32">Outside-Interlock</th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700 border-b border-gray-200 w-28">Rail</th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700 border-b border-gray-200 w-24">Finish</th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700 border-b border-gray-200 w-24">Lock</th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700 border-b border-gray-200 w-24">Glass</th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700 border-b border-gray-200 w-16">Qty</th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700 border-b border-gray-200 w-20">SqFt</th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700 border-b border-gray-200 w-20">SqM</th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700 border-b border-gray-200 w-24">Amount</th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700 border-b border-gray-200 w-24">Rate/sqFt</th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700 border-b border-gray-200 w-24">Rate/sqM</th>
+                    {(mode === "edit" || mode === "add") && (
+                      <th className="px-4 py-4 text-left font-semibold text-gray-700 border-b border-gray-200 w-28">Actions</th>
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((r, i) => (
+                    <tr key={i} className="hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0">
+                      <td className="px-4 py-4 text-gray-700 font-medium">{i + 1}</td>
+                      <td className="px-4 py-4 text-gray-700">
                         {lists.series.find((s) => s._id === r.series)?.series || r.series || "-"}
                       </td>
-                      <td className={cellCls}>
-                        {lists.typologiesBySeries[r.series]?.find((t) => t._id === r.typology)
-                          ?.title ||
-                          r.typology ||
-                          "-"}
+                      <td className="px-4 py-4 text-gray-700">
+                        {lists.typologiesBySeries[r.series]?.find((t) => t._id === r.typology)?.title || r.typology || "-"}
                       </td>
-                      <td className={cellCls}>{r.widthMM || "-"}</td>
-                      <td className={cellCls}>{r.heightMM || "-"}</td>
-                      <td className={cellCls}>
-                        {lists.interlocks.find((i) => i._id === r.insideInterlock)?.model ||
-                          r.insideInterlock ||
-                          "-"}
+                      <td className="px-4 py-4 text-gray-700">{r.widthMM || "-"}</td>
+                      <td className="px-4 py-4 text-gray-700">{r.heightMM || "-"}</td>
+                      <td className="px-4 py-4 text-gray-700">
+                        {lists.interlocks.find((i) => i._id === r.insideInterlock)?.model || r.insideInterlock || "-"}
                       </td>
-                      <td className={cellCls}>
-                        {lists.interlocks.find((i) => i._id === r.meshInterlock)?.model ||
-                          r.meshInterlock ||
-                          "-"}
+                      <td className="px-4 py-4 text-gray-700">
+                        {lists.interlocks.find((i) => i._id === r.meshInterlock)?.model || r.meshInterlock || "-"}
                       </td>
-                      <td className={cellCls}>
-                        {lists.interlocks.find((i) => i._id === r.outsideInterlock)?.model ||
-                          r.outsideInterlock ||
-                          "-"}
+                      <td className="px-4 py-4 text-gray-700">
+                        {lists.interlocks.find((i) => i._id === r.outsideInterlock)?.model || r.outsideInterlock || "-"}
                       </td>
-                      <td className={cellCls}>
+                      <td className="px-4 py-4 text-gray-700">
                         {lists.rails.find((l) => l._id === r.rail)?.model || r.rail || "-"}
                       </td>
-                      <td className={cellCls}>
+                      <td className="px-4 py-4 text-gray-700">
                         {lists.finishes.find((f) => f._id === r.finish)?.title || r.finish || "-"}
                       </td>
-                      <td className={cellCls}>
+                      <td className="px-4 py-4 text-gray-700">
                         {lists.locks.find((l) => l._id === r.lock)?.title || r.lock || "-"}
                       </td>
-                      <td className={cellCls}>
+                      <td className="px-4 py-4 text-gray-700">
                         {lists.glasses.find((g) => g._id === r.glass)?.title || r.glass || "-"}
                       </td>
-                      <td className={cellCls}>{r.qty}</td>
-                      <td className={cellCls}>{r.sqft || "-"}</td>
-                      <td className={cellCls}>{r.sqm || "-"}</td>
-                      <td className={cellCls}>{r.amount || "-"}</td>
-                      <td className={cellCls}>{r.rateType === "sqft" ? r.rateSqFt : r.rateSqM}</td>
-                      <td className={cellCls}>{r.rateType === "sqM" ? r.rateSqM : r.rateSqM}</td>
-                      {(mode === "edit" ||mode==="adda") && (
-                        <td className={cellCls}>
-                          <button
-                            onClick={() => openView(i)}
-                            className="p-1 bg-blue-100 text-blue-700 mr-2"
-                            title="View"
-                          >
-                            <Eye size={14} />
-                          </button>
-                          <button
-                            onClick={() => openEdit(i)}
-                            className="p-1 bg-green-100 text-green-700 mr-2"
-                            title="Edit"
-                          >
-                            <Pencil size={14} />
-                          </button>
-                          {rows.length > 0 && (
+                      <td className="px-4 py-4 text-gray-700 font-medium">{r.qty}</td>
+                      <td className="px-4 py-4 text-gray-700">{r.sqft || "-"}</td>
+                      <td className="px-4 py-4 text-gray-700">{r.sqm || "-"}</td>
+                      <td className="px-4 py-4 text-gray-700 font-medium">{r.amount || "-"}</td>
+                      <td className="px-4 py-4 text-gray-700">{r.rateType === "sqft" ? r.rateSqFt : r.rateSqM}</td>
+                      <td className="px-4 py-4 text-gray-700">{r.rateType === "sqM" ? r.rateSqM : r.rateSqM}</td>
+                      {(mode === "edit" || mode === "add") && (
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-2">
                             <button
-                              onClick={() => removeRow(i)}
-                              className="p-1 bg-red-100 text-red-700"
-                              title="Remove"
+                              onClick={() => openView(i)}
+                              className="p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors"
+                              title="View"
                             >
-                              <Trash2 size={14} />
+                              <Eye size={16} />
                             </button>
-                          )}
+                            <button
+                              onClick={() => openEdit(i)}
+                              className="p-2 bg-green-50 hover:bg-green-100 text-green-600 rounded-lg transition-colors"
+                              title="Edit"
+                            >
+                              <Pencil size={16} />
+                            </button>
+                            {rows.length > 0 && (
+                              <button
+                                onClick={() => removeRow(i)}
+                                className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
+                                title="Remove"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
+                          </div>
                         </td>
                       )}
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <p style={FONT}>No rows added yet.</p>
-        )}
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="p-12 text-center">
+              <div className="text-gray-400 mb-4">
+                <Plus size={48} className="mx-auto" />
+              </div>
+              <p className="text-gray-600 text-lg" style={FONT}>No rows added yet.</p>
+            </div>
+          )}
+        </div>
 
         {modal.type && (
           <RowModal
@@ -1735,287 +1763,355 @@ const taxable = baseAmt + overheadAmt + adminProfitAmt + transportationFee+charg
           />
         )}
 
-        <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-          <div>
-            <label className="font-medium" style={FONT}>
-              Fabrication Charges (per SqM)
-            </label>
-            <input
-              type="number"
-              value={header.fabrication}
-              onChange={(e) =>
-                setHeader((h) => ({
-                  ...h,
-                  fabrication: e.target.value === "" ? "" : parseFloat(e.target.value),
-                }))
-              }
-              readOnly={mode === "view"}
-              tabIndex={mode === "view" ? -1 : undefined} // disable tab in view mode
-              className={`border rounded px-3 py-2 text-xs w-full ${
-                mode === "view" ? "bg-gray-100 cursor-default pointer-events-none" : "bg-white"
-              }`}
-              style={FONT}
-            />
-          </div>
-          <div>
-            <label className="font-medium" style={FONT}>
-              Installation Charges (per SqM)
-            </label>
-            <input
-              type="number"
-              value={header.installation}
-              onChange={(e) =>
-                setHeader((h) => ({
-                  ...h,
-                  installation: e.target.value === "" ? "" : parseFloat(e.target.value),
-                }))
-              }
-              readOnly={mode === "view"}
-              tabIndex={mode === "view" ? -1 : undefined} // disable tab in view mode
-              className={`border rounded px-3 py-2 text-xs w-full ${
-                mode === "view" ? "bg-gray-100 cursor-default pointer-events-none" : "bg-white"
-              }`}
-              style={FONT}
-            />
-          </div>
-        </div>
-        <div className="flex justify-end mb-6">
-          <div className="w-37 pr-5">
-            <label className="font-medium block mb-1" style={FONT}>
-              Overhead (in %)
-            </label>
-            <input
-              type="number"
-              value={header.overhead}
-              onChange={(e) =>
-                setHeader((h) => ({
-                  ...h,
-                  overhead: e.target.value === "" ? "" : parseFloat(e.target.value),
-                }))
-              }
-              readOnly={mode === "view"}
-              tabIndex={mode === "view" ? -1 : undefined} // disable tab in view mode
-              className={`border rounded px-3 py-2 text-xs w-full ${
-                mode === "view" ? "bg-gray-100 cursor-default pointer-events-none" : "bg-white"
-              }`}
-              style={FONT}
-            />
-          </div>
-          <div className="w-37 pr-5">
-            <label className="font-medium block mb-1" style={FONT}>
-              AdminProfit (in %)
-            </label>
-            <input
-              type="number"
-              value={header.adminprofit}
-              onChange={(e) =>
-                setHeader((h) => ({
-                  ...h,
-                  adminprofit: e.target.value === "" ? "" : parseFloat(e.target.value),
-                }))
-              }
-              readOnly={mode === "view"}
-              tabIndex={mode === "view" ? -1 : undefined} // disable tab in view mode
-              className={`border rounded px-3 py-2 text-xs w-full ${
-                mode === "view" ? "bg-gray-100 cursor-default pointer-events-none" : "bg-white"
-              }`}
-              style={FONT}
-            />
-          </div>
-          <div className="w-37 pr-5">
-            <label className="font-medium block mb-1" style={FONT}>
-              Discount
-            </label>
-            <input
-              type="number"
-              value={header.discount}
-              onChange={(e) =>
-                setHeader((h) => ({
-                  ...h,
-                  discount: parseFloat(e.target.value) || 0,
-                }))
-              }
-              readOnly={mode === "view"}
-              tabIndex={mode === "view" ? -1 : undefined} // disable tab in view mode
-              className={`border rounded px-3 py-2 text-xs w-full ${
-                mode === "view" ? "bg-gray-100 cursor-default pointer-events-none" : "bg-white"
-              }`}
-              style={FONT}
-            />
-          </div>
-          <div className="w-37 pr-5">
-            <label className="font-medium block mb-1" style={FONT}>
-              Transportation Fee (in ₹)
-            </label>
-            <input
-              type="number"
-              value={header.transportationFee}
-              onChange={(e) =>
-                setHeader((h) => ({
-                  ...h,
-                  transportationFee: e.target.value === "" ? "" : parseFloat(e.target.value),
-                }))
-              }
-              readOnly={mode === "view"}
-              tabIndex={mode === "view" ? -1 : undefined} // disable tab in view mode
-              className={`border rounded px-3 py-2 text-xs w-full ${
-                mode === "view" ? "bg-gray-100 cursor-default pointer-events-none" : "bg-white"
-              }`}
-              style={FONT}
-            />
-          </div>
-        </div>
-        <div className="grid grid-cols-3 gap-4 text-sm">
-          <div>
-            <label className="font-medium" style={FONT}>
-              Location
-            </label>
-            <select
-              value={header.location}
-              onChange={(e) => setHeader((h) => ({ ...h, location: e.target.value }))}
-              className="border rounded px-3 py-2 text-xs w-full"
-              style={FONT}
-            >
-              <option value="gujarat">Inside Gujarat (CGST + SGST)</option>
-              <option value="out">Outside Gujarat (IGST)</option>
-            </select>
-          </div>
-          {header.location === "gujarat" ? (
-            <>
-              <div>
-                <label className="font-medium" style={FONT}>
-                  CGST %
-                </label>
-                <input
-                  type="number"
-                  value={header.cgst}
-                  onChange={(e) =>
-                    setHeader((h) => ({
-                      ...h,
-                      cgst: e.target.value === "" ? "" : parseFloat(e.target.value),
-                    }))
-                  }
-                  className="border rounded px-3 py-2 text-xs w-full"
-                  style={FONT}
-                />
-              </div>
-              <div>
-                <label className="font-medium" style={FONT}>
-                  SGST %
-                </label>
-                <input
-                  type="number"
-                  value={header.sgst}
-                  onChange={(e) =>
-                    setHeader((h) => ({
-                      ...h,
-                      sgst: e.target.value === "" ? "" : parseFloat(e.target.value),
-                    }))
-                  }
-                  className="border rounded px-3 py-2 text-xs w-full"
-                  style={FONT}
-                />
-              </div>
-            </>
-          ) : (
+        {/* Charges and Settings */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4" style={FONT}>
+            Additional Charges
+          </h3>
+          
+          {/* Fabrication & Installation */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
-              <label className="font-medium" style={FONT}>
-                IGST %
+              <label className="block text-sm font-semibold text-gray-700 mb-2" style={FONT}>
+                Fabrication Charges (per SqM)
               </label>
               <input
                 type="number"
-                value={header.igst}
+                value={header.fabrication}
                 onChange={(e) =>
                   setHeader((h) => ({
                     ...h,
-                    igst: e.target.value === "" ? "" : parseFloat(e.target.value),
+                    fabrication: e.target.value === "" ? "" : parseFloat(e.target.value),
                   }))
                 }
-                className="border rounded px-3 py-2 text-xs w-full"
+                readOnly={mode === "view"}
+                tabIndex={mode === "view" ? -1 : undefined}
+                className={`w-full px-4 py-3 border rounded-lg text-sm transition-all ${
+                  mode === "view" 
+                    ? "bg-gray-50 border-gray-200 cursor-default pointer-events-none text-gray-600" 
+                    : "bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                }`}
                 style={FONT}
               />
             </div>
-          )}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2" style={FONT}>
+                Installation Charges (per SqM)
+              </label>
+              <input
+                type="number"
+                value={header.installation}
+                onChange={(e) =>
+                  setHeader((h) => ({
+                    ...h,
+                    installation: e.target.value === "" ? "" : parseFloat(e.target.value),
+                  }))
+                }
+                readOnly={mode === "view"}
+                tabIndex={mode === "view" ? -1 : undefined}
+                className={`w-full px-4 py-3 border rounded-lg text-sm transition-all ${
+                  mode === "view" 
+                    ? "bg-gray-50 border-gray-200 cursor-default pointer-events-none text-gray-600" 
+                    : "bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                }`}
+                style={FONT}
+              />
+            </div>
+          </div>
+
+          {/* Overhead, Profit, Discount, Transportation */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2" style={FONT}>
+                Overhead (in %)
+              </label>
+              <input
+                type="number"
+                value={header.overhead}
+                onChange={(e) =>
+                  setHeader((h) => ({
+                    ...h,
+                    overhead: e.target.value === "" ? "" : parseFloat(e.target.value),
+                  }))
+                }
+                readOnly={mode === "view"}
+                tabIndex={mode === "view" ? -1 : undefined}
+                className={`w-full px-4 py-3 border rounded-lg text-sm transition-all ${
+                  mode === "view" 
+                    ? "bg-gray-50 border-gray-200 cursor-default pointer-events-none text-gray-600" 
+                    : "bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                }`}
+                style={FONT}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2" style={FONT}>
+                Admin Profit (in %)
+              </label>
+              <input
+                type="number"
+                value={header.adminprofit}
+                onChange={(e) =>
+                  setHeader((h) => ({
+                    ...h,
+                    adminprofit: e.target.value === "" ? "" : parseFloat(e.target.value),
+                  }))
+                }
+                readOnly={mode === "view"}
+                tabIndex={mode === "view" ? -1 : undefined}
+                className={`w-full px-4 py-3 border rounded-lg text-sm transition-all ${
+                  mode === "view" 
+                    ? "bg-gray-50 border-gray-200 cursor-default pointer-events-none text-gray-600" 
+                    : "bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                }`}
+                style={FONT}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2" style={FONT}>
+                Discount
+              </label>
+              <input
+                type="number"
+                value={header.discount}
+                onChange={(e) =>
+                  setHeader((h) => ({
+                    ...h,
+                    discount: parseFloat(e.target.value) || 0,
+                  }))
+                }
+                readOnly={mode === "view"}
+                tabIndex={mode === "view" ? -1 : undefined}
+                className={`w-full px-4 py-3 border rounded-lg text-sm transition-all ${
+                  mode === "view" 
+                    ? "bg-gray-50 border-gray-200 cursor-default pointer-events-none text-gray-600" 
+                    : "bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                }`}
+                style={FONT}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2" style={FONT}>
+                Transportation Fee (in ₹)
+              </label>
+              <input
+                type="number"
+                value={header.transportationFee}
+                onChange={(e) =>
+                  setHeader((h) => ({
+                    ...h,
+                    transportationFee: e.target.value === "" ? "" : parseFloat(e.target.value),
+                  }))
+                }
+                readOnly={mode === "view"}
+                tabIndex={mode === "view" ? -1 : undefined}
+                className={`w-full px-4 py-3 border rounded-lg text-sm transition-all ${
+                  mode === "view" 
+                    ? "bg-gray-50 border-gray-200 cursor-default pointer-events-none text-gray-600" 
+                    : "bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                }`}
+                style={FONT}
+              />
+            </div>
+          </div>
+
+          {/* Tax Settings */}
+          <div className="border-t border-gray-200 pt-6">
+            <h4 className="text-md font-semibold text-gray-800 mb-4" style={FONT}>
+              Tax Settings
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2" style={FONT}>
+                  Location
+                </label>
+                <select
+                  value={header.location}
+                  onChange={(e) => setHeader((h) => ({ ...h, location: e.target.value }))}
+                  readOnly={mode === "view"}
+                tabIndex={mode === "view" ? -1 : undefined}
+                className={`w-full px-4 py-3 border rounded-lg text-sm transition-all ${
+                  mode === "view" 
+                    ? "bg-gray-50 border-gray-200 cursor-default pointer-events-none text-gray-600" 
+                    : "bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                }`}
+                style={FONT}
+                >
+                  <option value="gujarat">Inside Gujarat (CGST + SGST)</option>
+                  <option value="out">Outside Gujarat (IGST)</option>
+                  
+                </select>
+              </div>
+              {header.location === "gujarat" ? (
+                <>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2" style={FONT}>
+                      CGST %
+                    </label>
+                    <input
+                      type="number"
+                      value={header.cgst}
+                      onChange={(e) =>
+                        setHeader((h) => ({
+                          ...h,
+                          cgst: e.target.value === "" ? "" : parseFloat(e.target.value),
+                        }))
+                      }
+                      readOnly={mode === "view"}
+                tabIndex={mode === "view" ? -1 : undefined}
+                className={`w-full px-4 py-3 border rounded-lg text-sm transition-all ${
+                  mode === "view" 
+                    ? "bg-gray-50 border-gray-200 cursor-default pointer-events-none text-gray-600" 
+                    : "bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                }`}
+                style={FONT}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2" style={FONT}>
+                      SGST %
+                    </label>
+                    <input
+                      type="number"
+                      value={header.sgst}
+                      onChange={(e) =>
+                        setHeader((h) => ({
+                          ...h,
+                          sgst: e.target.value === "" ? "" : parseFloat(e.target.value),
+                        }))
+                      }
+                      readOnly={mode === "view"}
+                tabIndex={mode === "view" ? -1 : undefined}
+                className={`w-full px-4 py-3 border rounded-lg text-sm transition-all ${
+                  mode === "view" 
+                    ? "bg-gray-50 border-gray-200 cursor-default pointer-events-none text-gray-600" 
+                    : "bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                }`}
+                style={FONT}
+                    />
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2" style={FONT}>
+                    IGST %
+                  </label>
+                  <input
+                    type="number"
+                    value={header.igst}
+                    onChange={(e) =>
+                      setHeader((h) => ({
+                        ...h,
+                        igst: e.target.value === "" ? "" : parseFloat(e.target.value),
+                      }))
+                    }
+                    readOnly={mode === "view"}
+                tabIndex={mode === "view" ? -1 : undefined}
+                className={`w-full px-4 py-3 border rounded-lg text-sm transition-all ${
+                  mode === "view" 
+                    ? "bg-gray-50 border-gray-200 cursor-default pointer-events-none text-gray-600" 
+                    : "bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                }`}
+                style={FONT}  
+                  />
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
-        <div className="mt-4 text-right" style={FONT}>
-          <p>
-            Products Amount: <b>{rowsAmt.toFixed(2)}</b>
-          </p>
-          <p>
-            Fabrication Charges: <b>{fabricationAmt.toFixed(2)}</b>
-          </p>
-          <p>
-            Installation Charges: <b>{installationAmt.toFixed(2)}</b>
-          </p>
-          <p>
-            Overhead ({header.overhead}%): <b>{overheadAmt.toFixed(2)}</b>
-          </p>
-          <p>
-            Admin Profit ({header.adminprofit}%): <b>{adminProfitAmt.toFixed(2)}</b>
-          </p>
-          <p>
-            Transportation Fee: <b>{transportationFee.toFixed(2)}</b>
-          </p>
-          
-          <p>
-            Total Amount (Before Tax): <b>{taxable.toFixed(2)}</b>
-          </p>
-          <p>
-            Taxes: <b>{taxAmt.toFixed(2)}</b>
-          </p>
-          <p>
-            Discount: <b>{discountAmt.toFixed(2)}</b>
-          </p>
-          <p className="text-xl">
-            Grand Total: <b>{grand}</b>
-          </p>
+        {/* Summary Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4" style={FONT}>
+            Cost Summary
+          </h3>
+          <div className="space-y-3 text-sm" style={FONT}>
+            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+              <span className="text-gray-600">Products Amount:</span>
+              <span className="font-semibold">₹{rowsAmt.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+              <span className="text-gray-600">Fabrication Charges:</span>
+              <span className="font-semibold">₹{fabricationAmt.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+              <span className="text-gray-600">Installation Charges:</span>
+              <span className="font-semibold">₹{installationAmt.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+              <span className="text-gray-600">Overhead ({header.overhead}%):</span>
+              <span className="font-semibold">₹{overheadAmt.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+              <span className="text-gray-600">Admin Profit ({header.adminprofit}%):</span>
+              <span className="font-semibold">₹{adminProfitAmt.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+              <span className="text-gray-600">Transportation Fee:</span>
+              <span className="font-semibold">₹{transportationFee.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center py-3 border-b-2 border-gray-200 bg-gray-50 -mx-6 px-6">
+              <span className="text-gray-700 font-medium">Total Amount (Before Tax):</span>
+              <span className="font-bold text-lg">₹{taxable.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+              <span className="text-gray-600">Taxes:</span>
+              <span className="font-semibold">₹{taxAmt.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+              <span className="text-gray-600">Discount:</span>
+              <span className="font-semibold text-red-600">-₹{discountAmt.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center py-4 bg-gradient-to-r from-green-50 to-emerald-50 -mx-6 px-6 rounded-lg border border-green-200">
+              <span className="text-xl font-bold text-green-800">Grand Total:</span>
+              <span className="text-2xl font-bold text-green-800">₹{grand}</span>
+            </div>
+          </div>
         </div>
 
-        <div className="flex gap-2 mb-4">
+        {/* Action Buttons */}
+        <div className="flex flex-wrap gap-3 justify-center md:justify-start">
           {/* Back button always shown */}
           <button
             onClick={() => nav(`/project`)}
-            className="flex items-center gap-1 bg-gray-400 text-white px-4 py-2 rounded text-sm"
+            className="inline-flex items-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
             style={FONT}
           >
-            <ArrowLeft size={16} /> Back
+            <ArrowLeft size={18} /> Back
           </button>
 
-          {/* View mode → only show Print */}
+          {/* View mode → only show Print and MTO */}
           {mode === "view" && quotationId && (
-            <button
-              onClick={() => nav(`/quotation/${quotationId}/print`, "_blank")}
-              className="flex items-center gap-1 bg-indigo-600 text-white px-4 py-2 rounded text-sm"
-              style={FONT}
-            >
-              <Printer size={16} /> Print
-            </button>
-          )}
-          {mode === "view" && quotationId && (
-            <button
-              onClick={() => nav(`/mto/${quotationId}`, "_blank")}
-              className="flex items-center gap-1 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded text-sm"
-            >
-              <FileText size={16} />
-              MTO
-            </button>
-          )}
-
-          {/* Edit / Add mode → show Update / Save and Print separately */}
-          {(mode === "edit" || mode === "add") && (
             <>
               <button
-                onClick={saveQuotation}
-                className="flex items-center gap-1 bg-green-600 text-white px-4 py-2 rounded text-sm"
+                onClick={() => nav(`/quotation/${quotationId}/print`, "_blank")}
+                className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
                 style={FONT}
               >
-                <Save size={16} /> {mode === "edit" ? "Update" : "Save"}
+                <Printer size={18} /> Print
+              </button>
+              <button
+                onClick={() => nav(`/mto/${quotationId}`, "_blank")}
+                className="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+                style={FONT}
+              >
+                <FileText size={18} /> MTO
               </button>
             </>
+          )}
+
+          {/* Edit / Add mode → show Update / Save */}
+          {(mode === "edit" || mode === "add") && (
+            <button
+              onClick={saveQuotation}
+              className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+              style={FONT}
+            >
+              <Save size={18} /> {mode === "edit" ? "Update" : "Save"}
+            </button>
           )}
         </div>
       </div>
     </div>
-  );
-}
+  </div>
+)};
