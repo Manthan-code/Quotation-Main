@@ -2,8 +2,8 @@ const jwt   = require("jsonwebtoken");
 const User  = require("../models/User");
 const bcrypt = require("bcryptjs");
 
-const signToken = (id, name, email, role) =>
-  jwt.sign({ id, name, email, role  }, process.env.JWT_SECRET, { expiresIn: "7d" });
+const signToken = (id, name, email, role, avatar) =>
+  jwt.sign({ id, name, email, role , avatar }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
 /* ───────── Sign‑up ───────── */
 exports.signup = async (req, res) => {
@@ -21,10 +21,10 @@ exports.signup = async (req, res) => {
    
     const user  = await User.create({ name, email, password, role: "Client" });
 
-    const token = signToken(user._id, user.name, user.email, user.role);
+    const token = signToken(user._id, user.name, user.email, user.role , user.avatar);
     res.status(201).json({
       token,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+      user: { id: user._id, name: user.name, email: user.email, role: user.role ,avatar: user.avatar || null,},
     });
   } catch (err) {
     res.status(500).json({ msg: err.message });
@@ -45,10 +45,10 @@ exports.login = async (req, res) => {
       return res.status(401).json({ msg: "Invalid email or password" });
     }
 
-    const token = signToken(user._id, user.name, user.email, user.role);
+    const token = signToken(user._id, user.name, user.email, user.role, user.avatar);
     res.json({
       token,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+      user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar || null,},
     });
   } catch (err) {
     res.status(500).json({ msg: err.message });
@@ -87,7 +87,7 @@ exports.updateProfile = async (req, res) => {
     res.status(500).json({ msg: "Internal Server Error" });
   }
 };
-  
+
 
 
 
