@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem("token");
     if (token) {
       const decoded = jwtDecode(token);
-      setUser({ id: decoded.id, name: decoded.name, email: decoded.email, role: decoded.role });
+      setUser({ id: decoded.id, name: decoded.name, email: decoded.email, role: decoded.role,avatar: decoded.avatar || null, });
     }
   }, []);
 
@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = async (updates) => {
     const isForm = updates instanceof FormData;
     const config  = isForm ? { headers: { "Content-Type": "multipart/form-data" } } : {};
-    const { data } = await api.put("/profile", updates, config);
+    const { data } = await api.put("/auth/profile", updates, config);
     setUser(data.user);                 // refresh context
     return data.user;
   };

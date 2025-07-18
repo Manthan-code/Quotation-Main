@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import LogoutButton from "./LogoutButton";
 import logo from "../assets/logo.png";
 
+
 export default function Sidebar({
   open,
   toggleSidebar,
@@ -72,7 +73,7 @@ export default function Sidebar({
       {/* Avatar */}
       <div className="mb-6 flex items-center gap-4 shrink-0">
         {user?.avatar ? (
-          <img src={user.avatar} alt={displayName} className="h-12 w-12 rounded-full object-cover" />
+          <img src={user?.avatar || "/default_avatar.png"} alt={user?.name || "Avatar"} className="h-12 w-12 rounded-full object-cover" />
         ) : (
           <div className="h-12 w-12 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center">
             <UserIcon className="h-6 w-6 text-gray-500 dark:text-gray-400" />

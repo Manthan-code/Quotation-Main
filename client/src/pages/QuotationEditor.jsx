@@ -603,7 +603,8 @@ export default function QuotationEditor({ mode = "add" }) {
         trackEPDM: "EPDM 4746",
         interlockEPDM: "EPDM 8085",
         glassEPDM: "OSAKA",
-        reciever: "ORBITA",
+        ventguide:"PH140/B",
+        bumpstopper:"PAP005/B",
         skrew8X25: "CSK PH 8X25 [SS-304]",
         interLockEndCap101: "PH308/B",
         interLockEndCap81: "PH260/B",
@@ -646,7 +647,8 @@ export default function QuotationEditor({ mode = "add" }) {
       const trackEPDMRate = up.hardwareDetails.trackEPDM?.rate || 0;
       const interlockEPDMRate = up.hardwareDetails.interlockEPDM?.rate || 0;
       const glassEPDMRate = up.hardwareDetails.glassEPDM?.rate || 0;
-      const recieverRate = up.hardwareDetails.reciever?.rate || 0;
+      const ventguideRate = up.hardwareDetails.ventguide?.rate || 0;
+      const bumpstopperRate = up.hardwareDetails.bumpstopper?.rate || 0;
       const skrew8X25Rate = up.hardwareDetails.skrew8X25?.rate || 0;
       const interLockEndCap101Rate = up.hardwareDetails.interLockEndCap101?.rate || 0;
       const interLockEndCap81Rate = up.hardwareDetails.interLockEndCap81?.rate || 0;
@@ -763,6 +765,7 @@ export default function QuotationEditor({ mode = "add" }) {
                 skrew13X7Rate * 4 +
                 brushRate * 2 +
                 distancePiecesRate * 16 +
+                ventguideRate*4+
                 (widthMM / 550) * waterDrainageCoverRate +
                 ((perimeterM * 1000) / 650) * wallSkrewRate +
                 rowelPlugRate * ((perimeterM * 1000) / 650) +
